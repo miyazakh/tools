@@ -290,11 +290,10 @@ class Notifier():
 
     def SendSlack(self):
         # Create the Slack Client
-        #client = WebClient(SLACK_APP_TOKEN)
-        #text= self.subject + "\n" + self.msg
+        client = WebClient(SLACK_APP_TOKEN)
+        text= self.subject + "\n" + self.msg
         # Send text to the Slack Channel
-        #responce = client.chat_postMessage(channel=CHANNEL_ID, text=text)
-        pass
+        responce = client.chat_postMessage(channel=CHANNEL_ID, text=text)
 
 
 
