@@ -290,10 +290,11 @@ class Notifier():
 
     def SendSlack(self):
         # Create the Slack Client
-        client = WebClient(SLACK_APP_TOKEN)
-        text= self.subject + "\n" + self.msg
+        #client = WebClient(SLACK_APP_TOKEN)
+        #text= self.subject + "\n" + self.msg
         # Send text to the Slack Channel
-        responce = client.chat_postMessage(channel=CHANNEL_ID, text=text)
+        #responce = client.chat_postMessage(channel=CHANNEL_ID, text=text)
+        pass
 
 
 
@@ -307,5 +308,12 @@ def getMerges():
 
     
 if __name__ == '__main__':
-    watchDoc_md()
-    watchDoc_header()
+    args = sys.argv
+
+    if 1 >= len(args):
+        print('ACCESS TOKEN should be passed!')
+    else:
+        if 1 < len(args):
+            ACCESS_TOKEN = args[1]
+        watchDoc_md()
+        watchDoc_header()
