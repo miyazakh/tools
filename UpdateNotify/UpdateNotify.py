@@ -33,11 +33,11 @@ MAIL_PASSWORD = "<Google App Token>"
 TEST=True
 
 if TEST==True:
-    SLACK_APP_TOKEN = 'xoxb-4563895984211-4995972054758-YQUnsCGMXpreEcFqxUIZedAB'
+    SLACK_APP_TOKEN = ''
     CHANNEL_ID = 'C04GL09TA7L' # channel ID of general at My Private workSpace
 
 else:
-    SLACK_APP_TOKEN = 'xoxb-391294675106-5002581211171-HuqkE7ACPNfseXxffoWLVYIy'
+    SLACK_APP_TOKEN = ''
     CHANNEL_ID = 'C029YM5K1J7' # channel ID of japan at wolfSSL workSpace 
 #===========================================================#
 
@@ -258,14 +258,23 @@ def getMerges():
     repo = g.get_repo("wolfssl/wolfssl")
     print(repo.merges_url)
 
+def usage():
+    print('')
+    print('python UpdateNofiy.py <GitHub Access Token> <Slack Access Token>')
+
 if __name__ == '__main__':
     args = sys.argv
 
-    if 1 >= len(args):
+    if 2 >= len(args):
+        print('')
         print('ACCESS TOKEN should be passed!')
+        usage()
+        sys.exit(-1)
     else:
-        if 1 < len(args):
+        if 2 < len(args):
             ACCESS_TOKEN = args[1]
+            SLACK_APP_TOKEN = args[2]
+            
     mdval = watchDoc_md()
     print('---------------------------------------------')
     headval = watchDoc_header()
