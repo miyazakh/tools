@@ -47,7 +47,9 @@ def writeLog(file, str):
     with open(file, mode="a") as f:
         print(str, file=f)
 
-
+# return 0  : no update
+#        2  : update
+#        -1 : something wrong
 def watchDoc_md():
     g = Github(ACCESS_TOKEN)
     repo = g.get_repo("wolfssl/documentation")
@@ -65,7 +67,7 @@ def watchDoc_md():
     if new_commits.totalCount == 0:
         print(f"New commit None")
         writeLog('documentation.log', f"[*] {datetime.datetime.today().strftime('%Y/%m/%d %H:%M')} : New commit None")
-        return
+        return 0
 
 # Check Whether the Contents is updated or not.
     Notification_list = []
@@ -74,7 +76,7 @@ def watchDoc_md():
         # Marge された時のコミットだけを見る。 （committerのcommitと重複してるから）
         if "Merge pull request" in commit.commit.message:
 
-            Notify=False 
+            Notify=False
             for file in commit.files:
                 # print(file.filename)
                 if "src-ja" not in file.filename \
@@ -92,9 +94,9 @@ def watchDoc_md():
     if len(Notification_list) == 0:
         print("Newly Merged but No updated Contents")
         writeLog('documentation.log', f"[*] {datetime.datetime.today().strftime('%Y/%m/%d %H:%M')} : Contents Not Updated!  {new_commits[0].commit.sha[:7]}..")
+        return 0
 
 
- 
 
     else:   # Updated Contents Exist!
         print("Updated Contents Exist!")
@@ -111,12 +113,14 @@ def watchDoc_md():
                 # notifier.Sendmail(to_addr)
                 notifier.SendSlack()
             writeLog('documentation.log', f"[+] {datetime.datetime.today().strftime('%Y/%m/%d %H:%M')} : Notified Updated Contents {commit.commit.sha[:7]}..")
+        return 2
 
 
 
 
-
-
+# return 0  : no update
+#        2  : update
+#        -1 : something wrong
 def watchDoc_header():
     g = Github(ACCESS_TOKEN)
     repo = g.get_repo("wolfssl/wolfssl")
@@ -135,7 +139,7 @@ def watchDoc_header():
     if new_commits.totalCount == 0:
         print("New commit None")
         writeLog('wolfssl_repo.log', f"[*] {datetime.datetime.today().strftime('%Y/%m/%d %H:%M')} : New commit None")
-        return
+        return 0
 
     # Check Whether the Contents is updated or not.
     Notification_list = []
@@ -161,7 +165,7 @@ def watchDoc_header():
     if len(Notification_list) == 0:
         print("Newly Merged but No updated Contents")
         writeLog('wolfssl_repo.log', f"[*] {datetime.datetime.today().strftime('%Y/%m/%d %H:%M')} : Contents Not Updated!  {new_commits[0].commit.sha[:7]}..")
-
+        return 0
 
     else:   # Updated Contents Exist!
         print("Updated Contents Exist!")
@@ -178,7 +182,7 @@ def watchDoc_header():
                 # notifier.Sendmail(to_addr)
                 notifier.SendSlack()
             writeLog('wolfssl_repo.log', f"[+] {datetime.datetime.today().strftime('%Y/%m/%d %H:%M')} : Notified Updated Contents {commit.commit.sha[:7]}..")
-
+        return 2
 
 
 
@@ -205,14 +209,14 @@ class Notifier():
         msg += f"[Merged by]    {self.commit.commit.author.name}\n"
         msg += f"[Commit Message]\n"
         msg += f"{self.commit.commit.message}\n\n"
- 
+
         msg += f"[Changed Files]\n"
         for filename in self.updated_files:
             msg += f"{filename}\n"
         msg += "\n"
         msg += f"[URL]  {self.commit.commit.html_url}\n"
 
- 
+
         self.msg = msg
 
 
@@ -262,6 +266,20 @@ if __name__ == '__main__':
     else:
         if 1 < len(args):
             ACCESS_TOKEN = args[1]
-    watchDoc_md()
+    mdval = watchDoc_md()
     print('---------------------------------------------')
-    watchDoc_header()
+    headval = watchDoc_header()
+
+    print('mdval ', mdval)
+    print('headval ', headval)
+
+    if mdval == 2 or headval == 2:
+        sys.exit(2)
+
+    else:
+        if mdval == -1 or headval == -1:
+            sys.exit(-1)
+ 
+        else:
+            if mdval == 0 and headval == 0:
+                sys.exit(0)
